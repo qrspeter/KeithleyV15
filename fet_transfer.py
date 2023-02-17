@@ -26,15 +26,11 @@ current_range_for_name = str(current_range)
 
 # initialize the Sourcemeter and connect to it
 # you may need to change the IP address depending on which sourcemeter you are using
-sm = SMU26xx('TCPIP0::192.166.1.101::INSTR') # SMU26xx("TCPIP0::192.166.1.101::inst0::INSTR")
+sm = SMU26xx('TCPIP0::192.166.1.101::INSTR') 
 
-# get one channel of the Sourcemeter (we only need one for this measurement)
+# get one channel of the Sourcemeter 
 smu_ch = sm.get_channel(sm.CHANNEL_A)
 smu_gate = sm.get_channel(sm.CHANNEL_B)
-
-""" ******* Configure the SMU Channel A ******** """
-#define a variable "current range" to be able to change it quickly for future measurements
-
 
 
 # reset to default settings
@@ -71,15 +67,9 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 
 """ ******* For saving the data ******** """
 
-#some suggestions for improvement of the data saving
-	#the file name should identify the file uniquely
-	#therefore specifying for example the voltage range, and the
-	#type of characteristic (U/I, U/R, etc...) is suggested
-
 # Create unique filenames for saving the data
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
 filename_csv = './data/' + 'FET_' + time_for_name + '_vds_' + str(ch_bias) + '.csv'
-filename_pdf = 'Diode_' + 'current_range_' + current_range_for_name + '_' + time_for_name +'.pdf'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv
@@ -89,25 +79,7 @@ with open(filename_csv, 'a') as csvfile:
 
 """ ******* Make a voltage-sweep and do some measurements ******** """
 
-#some suggestions for the improvement of the measurement process
-	#it would be nice to have a primary measurement, in which the
-	#type of junction was be determined and a parameter was set
-	#that indicated the forward direction of the junction
-	#this primary measurement could also be executed and inlcuded
-	#in the file name
-	#this procedure would spare us the time of finding the forward
-	#direction
-
-# define sweep parameters
-# sweep_start = -10.0
-# sweep_end = 10.0
-# sweep_step = 0.25
-# steps = int((sweep_end - sweep_start) / sweep_step)
-
-
-
 # define variables we store the measurement in
-# rename if needed
 ch_current = []
 gate_voltage = []
 gate_current = []
@@ -148,18 +120,14 @@ sm.disconnect()
 
 """ ******* Plot the Data we obtained ******** """
 
-#use plt instead of semilogy to plot in chartesian axis
-#plt.semilogy(gate_voltage, np.abs(ch_current),'x-', linewidth=2)
 plt.plot(gate_voltage, ch_current, label = r'$I_{DS}$', color='red', linewidth=2)
 plt.plot(gate_voltage, gate_current, label = r'$I_{GS}$', color='black', linestyle='dashed', linewidth=1)
 
 # set labels and a title
-#suggestion: include some more information about the measurement (ref CSV file title)
 plt.xlabel('Voltage / V', fontsize=14)
 plt.ylabel('Current / A', fontsize=14)
 plt.title('FET transfer characteristics' + r', $V_{DS}$ = ' + str(ch_bias), fontsize=14)
 plt.tick_params(labelsize = 14)
 plt.legend(loc = 'upper right')
 
-# plt.savefig(filename_pdf)
 plt.show()

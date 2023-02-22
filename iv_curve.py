@@ -5,21 +5,6 @@ import datetime
 import csv
 import numpy as np
 
-"""
-EXAMPLE: characteristic curve of a diode
-
-Schematic:
-
-    --------------
-    |            |
-  -----         -|-
-  | A | SMU     \|/
-  -----         -|-
-    |            |
-    --------------
-
-"""
-
 """ ******* Connect to the Sourcemeter ******** """
 
 # initialize the Sourcemeter and connect to it
@@ -32,8 +17,15 @@ smu = sm.get_channel(sm.CHANNEL_A)
 """ ******* Configure the SMU Channel A ******** """
 #define a variable "current range" to be able to change it quickly for future measurements
 
+# define sweep parameters
+sweep_start = -10.0
+sweep_end = 10.0
+sweep_step = 0.2
+steps = int((sweep_end - sweep_start) / sweep_step)
 
-current_range = 1e-4
+sample_name = ''
+
+current_range = 1e-3
 current_range_for_name = str(current_range)
 
 # reset to default settings
@@ -50,10 +42,11 @@ smu.set_current(0)
 
 smu.set_measurement_speed_hi_accuracy()
 '''
-40 измерений (20В по 0,25)
+40 измерений (20В по 0.25)
 set_measurement_speed_hi_accuracy - 37 секунд (1.41859e-09 A)
 set_measurement_speed_fast - 2 секунды (4.65035e-08 A)
 
+SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 '''
 
 """ ******* For saving the data ******** """
@@ -65,31 +58,16 @@ set_measurement_speed_fast - 2 секунды (4.65035e-08 A)
 
 # Create unique filenames for saving the data
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
-filename_csv = 'Diode_' + 'current_range_' + current_range_for_name + '_' + time_for_name +'.csv'
+filename_csv = './data/' + time_for_name + '_' + sample_name +'_IV_' + str(sweep_end) + '.csv'
 filename_pdf = 'Diode_' + 'current_range_' + current_range_for_name + '_' + time_for_name +'.pdf'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv
 with open(filename_csv, 'a') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';',  lineterminator='\n')
+        writer = csv.writer(csvfile)
         writer.writerow(["# Voltage / V", "Current / A"])
 
 """ ******* Make a voltage-sweep and do some measurements ******** """
-
-#some suggestions for the improvement of the measurement process
-	#it would be nice to have a primary measurement, in which the
-	#type of junction was be determined and a parameter was set
-	#that indicated the forward direction of the junction
-	#this primary measurement could also be executed and inlcuded
-	#in the file name
-	#this procedure would spare us the time of finding the forward
-	#direction
-
-# define sweep parameters
-sweep_start = -10.0
-sweep_end = 10.0
-sweep_step = 0.25
-steps = int((sweep_end - sweep_start) / sweep_step)
 
 # define variables we store the measurement in
 # rename if needed
@@ -98,6 +76,10 @@ data_voltage = []
 
 # enable the output
 smu.enable_output()
+
+smu.set_voltage(sweep_start)
+smu.measure_current_and_voltage()
+
 
 # step through the voltages and get the values from the device
 for nr in range(steps):
@@ -112,11 +94,11 @@ for nr in range(steps):
     print(str(voltage)+' V; '+str(current)+' A')
     # Write the data in a csv
     with open(filename_csv, 'a') as csvfile:
-        writer = csv.writer(csvfile, delimiter=';',  lineterminator='\n')
+        writer = csv.writer(csvfile)
         writer.writerow([voltage, current])
        
-    if nr%10 == 0:   
-        sm.write_lua("digio.writebit(1, {})".format((nr/10)%2))
+    # if nr%10 == 0:   
+        # sm.write_lua("digio.writebit(1, {})".format((nr/10)%2))
 
 # disable the output
 smu.disable_output()
@@ -127,7 +109,8 @@ sm.disconnect()
 """ ******* Plot the Data we obtained ******** """
 
 #use plt instead of semilogy to plot in chartesian axis
-plt.semilogy(data_voltage, np.abs(data_current),'x-', linewidth=2)
+plt.plot(data_voltage, data_current, label = r'$I_{D}$', color='red', linewidth=2)
+#plt.semilogy(data_voltage, np.abs(data_current),'label = r'$I_{D}$', color='red', linewidth=2)
 
 # set labels and a title
 #suggestion: include some more information about the measurement (ref CSV file title)
@@ -138,3 +121,4 @@ plt.tick_params(labelsize = 14)
 
 # plt.savefig(filename_pdf)
 plt.show()
+

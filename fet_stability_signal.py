@@ -5,19 +5,49 @@ import datetime
 import csv
 import numpy as np
 
-gate_start = 40.2
-gate_end = -40.2
-gate_step = 0.25
-drain_bias = +5
+
+import sys, signal
+def signal_handler(signal, frame):
+    print("\nprogram exiting gracefully")
+    sys.exit(0) # тут надо вызывать функцию рисования графика и потом уже выход
+
+signal.signal(signal.SIGINT, signal_handler)
 
 
-if gate_start > gate_end:
-    gate_step = -1 * np.abs(gate_step)
-else:
-    gate_step = np.abs(gate_step)
+# gate_start = -0
+# gate_end = -40.2
+# gate_step = 0.25
+drain_bias = -5
+gate_bias = -40
+
+'''
+#Use a try except statement with the while loop inside of the try block and a Keyboard Interrupt exception in the except statement. When Ctrl-C is pressed on the keyboard, the while loop will terminate.
+# https://www.adamsmith.haus/python/answers/how-to-kill-a-while-loop-with-a-key-stroke-in-python
+
+# https://stackoverflow.com/questions/18994912/ending-an-infinite-while-loop
+
+try:
+
+    while True:
+
+        # replace break with your code
+        break
+
+
+except KeyboardInterrupt:
+
+    print("Press Ctrl-C to terminate while statement")
+
+    pass
+'''
+
+# if gate_start > gate_end:
+    # gate_step = -1 * np.abs(gate_step)
+# else:
+    # gate_step = np.abs(gate_step)
     
     
-gate_steps = int((gate_end - gate_start) / gate_step)
+#gate_steps = int((gate_end - gate_start) / gate_step)
 
 current_range = 1e-3
 current_range_for_name = str(current_range)
@@ -69,20 +99,20 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 
 # Create unique filenames for saving the data
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
-filename_csv = './data/' + 'FET_' + time_for_name + '_vds_' + str(drain_bias) + '.csv'
+filename_csv = './data/' + 'FET_' + time_for_name + '_time_' + str(drain_bias) + '.csv'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv
 with open(filename_csv, 'a') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["# Gate / V", "Drain / A", "Drain / V", "Gate / A"])
+        writer.writerow(["# Time / sec", "Drain / A", "Drain / V", "Gate / A"])
 
 """ ******* Make a voltage-sweep and do some measurements ******** """
 
 # define variables we store the measurement in
 drain_current = []
-gate_voltage = []
 gate_current = []
+time_arr = []
 
 # enable the output
 smu_drain.enable_output()
@@ -90,24 +120,29 @@ smu_gate.enable_output()
 
 
 smu_drain.set_voltage(drain_bias)
-
+smu_gate.set_voltage(gate_bias)
+start = time.time()
 # step through the voltages and get the values from the device
-for nr in range(gate_steps):
+while True:
     # calculate the new voltage we want to set
-    g_voltage = gate_start + (gate_step * nr)
+#    g_voltage = gate_start + (gate_step * nr)
     # set the new voltage to the SMU
-    smu_gate.set_voltage(g_voltage)
+    smu_gate.set_voltage(gate_bias)
     # get current and voltage from the SMU and append it to the list so we can plot it later
     [current, voltage] = smu_drain.measure_current_and_voltage()
-    gate_voltage.append(g_voltage)
     drain_current.append(current)
     g_curr = smu_gate.measure_current()
     gate_current.append(g_curr)
-    print(str(g_voltage)+'V; '+str(current)+' A; ' + str(g_curr) + ' A')
+    
+    # Вычисление времени от начала измерения datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
+    t = time.time() - start
+    time_arr.append(t)
+    
+    print(str(t)+'sec; '+str(current)+' A; ' + str(g_curr) + ' A')
     # Write the data in a csv
     with open(filename_csv, 'a') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow([g_voltage, current, drain_bias, g_curr])
+        writer.writerow([t, current, drain_bias, g_curr])
        
 
 # disable the output
@@ -124,9 +159,9 @@ plt.plot(gate_voltage, drain_current, label = r'$I_{DS}$', color='red', linewidt
 plt.plot(gate_voltage, gate_current, label = r'$I_{GS}$', color='black', linestyle='dashed', linewidth=1)
 
 # set labels and a title
-plt.xlabel('Voltage / V', fontsize=14)
+plt.xlabel('Time / s', fontsize=14)
 plt.ylabel('Current / A', fontsize=14)
-plt.title('FET transfer characteristics' + r', $V_{DS}$ = ' + str(drain_bias), fontsize=14)
+plt.title('Temporal characteristics' + r', $V_{DS}$ = ' + str(drain_bias) + r', $V_{GS}$ = ' + str(gate_bias), fontsize=14)
 plt.tick_params(labelsize = 14)
 plt.legend(loc = 'upper right')
 

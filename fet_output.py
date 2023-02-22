@@ -5,19 +5,19 @@ import datetime
 import csv
 import numpy as np
 
-gate_start = 40.2
-gate_end = -40.2
-gate_step = 0.25
-drain_bias = +5
+drain_start = 0
+drain_end = 0.1
+drain_step = 0.004
+gate_bias = 0
 
 
-if gate_start > gate_end:
-    gate_step = -1 * np.abs(gate_step)
+if drain_start > drain_end:
+    drain_step = -1 * np.abs(drain_step)
 else:
-    gate_step = np.abs(gate_step)
+    drain_step = np.abs(drain_step)
     
     
-gate_steps = int((gate_end - gate_start) / gate_step)
+drain_steps = int((drain_end - drain_start) / drain_step)
 
 current_range = 1e-3
 current_range_for_name = str(current_range)
@@ -69,19 +69,19 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 
 # Create unique filenames for saving the data
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
-filename_csv = './data/' + 'FET_' + time_for_name + '_vds_' + str(drain_bias) + '.csv'
+filename_csv = './data/' + 'FET_' + time_for_name + '_vgs_' + str(gate_bias) + '.csv'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv
 with open(filename_csv, 'a') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["# Gate / V", "Drain / A", "Drain / V", "Gate / A"])
+        writer.writerow(["# Drain / V", "Drain / A", "Gate / V", "Gate / A"])
 
 """ ******* Make a voltage-sweep and do some measurements ******** """
 
 # define variables we store the measurement in
 drain_current = []
-gate_voltage = []
+drain_voltage = []
 gate_current = []
 
 # enable the output
@@ -89,25 +89,28 @@ smu_drain.enable_output()
 smu_gate.enable_output()
 
 
-smu_drain.set_voltage(drain_bias)
+smu_gate.set_voltage(gate_bias)
 
 # step through the voltages and get the values from the device
-for nr in range(gate_steps):
+#for nr in range(1500):
+for nr in range(drain_steps):
     # calculate the new voltage we want to set
-    g_voltage = gate_start + (gate_step * nr)
+    dr_voltage = drain_start + (drain_step * nr)
     # set the new voltage to the SMU
-    smu_gate.set_voltage(g_voltage)
+#    smu_drain.set_voltage(0.3)
+    smu_drain.set_voltage(dr_voltage)
     # get current and voltage from the SMU and append it to the list so we can plot it later
     [current, voltage] = smu_drain.measure_current_and_voltage()
-    gate_voltage.append(g_voltage)
+#    voltage = dr_voltage
+    drain_voltage.append(voltage)
     drain_current.append(current)
     g_curr = smu_gate.measure_current()
     gate_current.append(g_curr)
-    print(str(g_voltage)+'V; '+str(current)+' A; ' + str(g_curr) + ' A')
+    print(str(voltage)+'V; '+str(current)+' A; ' + str(g_curr) + ' A')
     # Write the data in a csv
     with open(filename_csv, 'a') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow([g_voltage, current, drain_bias, g_curr])
+        writer.writerow([voltage, current, gate_bias, g_curr])
        
 
 # disable the output
@@ -120,13 +123,13 @@ sm.disconnect()
 
 """ ******* Plot the Data we obtained ******** """
 
-plt.plot(gate_voltage, drain_current, label = r'$I_{DS}$', color='red', linewidth=2)
-plt.plot(gate_voltage, gate_current, label = r'$I_{GS}$', color='black', linestyle='dashed', linewidth=1)
+plt.plot(drain_voltage, drain_current, label = r'$I_{DS}$', color='red', linewidth=2)
+plt.plot(drain_voltage, gate_current, label = r'$I_{GS}$', color='black', linestyle='dashed', linewidth=1)
 
 # set labels and a title
 plt.xlabel('Voltage / V', fontsize=14)
 plt.ylabel('Current / A', fontsize=14)
-plt.title('FET transfer characteristics' + r', $V_{DS}$ = ' + str(drain_bias), fontsize=14)
+plt.title('FET output characteristics' + r', $V_{GS}$ = ' + str(gate_bias), fontsize=14)
 plt.tick_params(labelsize = 14)
 plt.legend(loc = 'upper right')
 

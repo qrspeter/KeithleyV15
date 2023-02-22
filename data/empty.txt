@@ -1,0 +1,1 @@
+# The purpose of the file is existance of the './data/' folder.

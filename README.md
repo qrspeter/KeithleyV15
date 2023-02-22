@@ -1,4 +1,4 @@
-# Diode and FET measurement
+# Diode and FET measurement with Keithley 2636b using LAN
 
 #Based on "Red Light Emitting Diode" from http://lampx.tugraz.at/~hadley/semi/studentreports/WS18/RedLED/RedLED.html
 #by TU Graz / Graz University of Technology

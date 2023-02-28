@@ -104,7 +104,7 @@ filename_csv = './data/' + 'FET_' + time_for_name + '_time_' + str(drain_bias) +
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv
 with open(filename_csv, 'a') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile,  lineterminator='\n')
         writer.writerow(["# Time / sec", "Drain / A", "Drain / V", "Gate / A"])
 
 """ ******* Make a voltage-sweep and do some measurements ******** """
@@ -141,7 +141,7 @@ while True:
     print(str(t)+'sec; '+str(current)+' A; ' + str(g_curr) + ' A')
     # Write the data in a csv
     with open(filename_csv, 'a') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile,  lineterminator='\n')
         writer.writerow([t, current, drain_bias, g_curr])
        
 
@@ -161,7 +161,7 @@ plt.plot(gate_voltage, gate_current, label = r'$I_{GS}$', color='black', linesty
 # set labels and a title
 plt.xlabel('Time / s', fontsize=14)
 plt.ylabel('Current / A', fontsize=14)
-plt.title('Temporal characteristics' + r', $V_{DS}$ = ' + str(drain_bias) + r', $V_{GS}$ = ' + str(gate_bias), fontsize=14)
+plt.title(time_for_title + r', $V_{DS}$ = ' + str(drain_bias) + r', $V_{GS}$ = ' + str(gate_bias), fontsize=14)
 plt.tick_params(labelsize = 14)
 plt.legend(loc = 'upper right')
 

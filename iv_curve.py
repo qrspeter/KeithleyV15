@@ -18,12 +18,20 @@ smu = sm.get_channel(sm.CHANNEL_A)
 #define a variable "current range" to be able to change it quickly for future measurements
 
 # define sweep parameters
-sweep_start = -10.0
-sweep_end = 10.0
-sweep_step = 0.2
+sweep_start = 5.0
+sweep_end = -5.0
+sweep_step = 0.1
+
+if sweep_start > sweep_end:
+    sweep_step = -1 * np.abs(sweep_step)
+else:
+    sweep_step = np.abs(sweep_step)
+    
 steps = int((sweep_end - sweep_start) / sweep_step)
 
-sample_name = ''
+
+
+sample_name = '12_D-S'
 
 current_range = 1e-3
 current_range_for_name = str(current_range)
@@ -40,6 +48,7 @@ smu.set_current_range(current_range)
 smu.set_current_limit(current_range)
 smu.set_current(0)
 
+#smu.set_measurement_speed_normal()
 smu.set_measurement_speed_hi_accuracy()
 '''
 40 измерений (20В по 0.25)
@@ -58,13 +67,14 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 
 # Create unique filenames for saving the data
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
+time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 filename_csv = './data/' + time_for_name + '_' + sample_name +'_IV_' + str(sweep_end) + '.csv'
-filename_pdf = 'Diode_' + 'current_range_' + current_range_for_name + '_' + time_for_name +'.pdf'
+#filename_pdf = 'Diode_' + 'current_range_' + current_range_for_name + '_' + time_for_name +'.pdf'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv
 with open(filename_csv, 'a') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile, lineterminator='\n')
         writer.writerow(["# Voltage / V", "Current / A"])
 
 """ ******* Make a voltage-sweep and do some measurements ******** """
@@ -89,16 +99,14 @@ for nr in range(steps):
     smu.set_voltage(voltage_to_set)
     # get current and voltage from the SMU and append it to the list so we can plot it later
     [current, voltage] = smu.measure_current_and_voltage()
-    data_voltage.append(voltage)
+    data_voltage.append(voltage_to_set)
     data_current.append(current)
-    print(str(voltage)+' V; '+str(current)+' A')
+    print(str(voltage_to_set) +' V; '+str(current)+' A')
     # Write the data in a csv
     with open(filename_csv, 'a') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow([voltage, current])
+        writer = csv.writer(csvfile, lineterminator='\n')
+        writer.writerow([voltage_to_set, current])
        
-    # if nr%10 == 0:   
-        # sm.write_lua("digio.writebit(1, {})".format((nr/10)%2))
 
 # disable the output
 smu.disable_output()
@@ -116,7 +124,8 @@ plt.plot(data_voltage, data_current, label = r'$I_{D}$', color='red', linewidth=
 #suggestion: include some more information about the measurement (ref CSV file title)
 plt.xlabel('Voltage / V', fontsize=14)
 plt.ylabel('Current / A', fontsize=14)
-plt.title('Characteristic curve of a diode', fontsize=14)
+plt.title(time_for_title, fontsize=14)
+#plt.title('Characteristic curve of a diode', fontsize=14)
 plt.tick_params(labelsize = 14)
 
 # plt.savefig(filename_pdf)

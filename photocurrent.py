@@ -8,14 +8,14 @@ import numpy as np
 
 
 drain_bias = 1.0
-cycles = 64
+cycles = 4
 measurements = 10
 halfperiods = 5
 data_length = measurements * halfperiods
 
-sample_name = 'p5'
+sample_name = ''
 
-delay = 180
+delay = 30
 
 current_range = 5e-2
 '''
@@ -63,13 +63,14 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 
 # Create unique filenames for saving the data
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
+time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 filename_csv = './data/' + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_vds_' + str(drain_bias) +  '_cycles_' + str(cycles) + '.csv'
-filename_raw_csv = './data/' + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_raw_vds_' + str(drain_bias) +  '_cycles_' + str(cycles) + '.csv'
+filename_raw_csv = './data/' + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_raw' + '.csv'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv
 with open(filename_csv, 'a') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile,  lineterminator='\n')
         writer.writerow(["# Time / sec", "Current / A"])
 
 """ ******* Make a voltage-sweep and do some measurements ******** """
@@ -87,16 +88,27 @@ smu_drain.set_voltage(drain_bias)
 start = time.time()
 
 try:
-#    print()
-    time.sleep(delay)
+    print('Waiting for warm-up for {} seconds. Press Ctl+C to escape'.format(delay))
+    t = time.time() - start
+    while True and t < delay:
+        [current, voltage] = smu_drain.measure_current_and_voltage()
+        t = time.time() - start
+        with open(filename_raw_csv, 'a') as csvfile:
+            writer = csv.writer(csvfile, lineterminator='\n') # default delimiter=',', lineterminator='\r\n' 
+            writer.writerow([t, current, voltage]) 
+        print('Time ' + str(int(t)) + ' sec, Voltage ' + str(voltage)+ ', Current ' + str(current) + ' A')
+        time.sleep(3)
 except KeyboardInterrupt:
     pass    
     
+    
+
     
 # step through the voltages and get the values from the device
 cycle = 0
 
 try:
+    print('Measurement started. Press Ctl+C to escape')
     while True and cycle < cycles:
 
         for i in range(halfperiods):
@@ -114,7 +126,7 @@ try:
                     
                 # Write the raw data in a csv
                 with open(filename_raw_csv, 'a') as csvfile:
-                    writer = csv.writer(csvfile) # default delimiter=',', lineterminator='\r\n' 
+                    writer = csv.writer(csvfile, lineterminator='\n') # default delimiter=',', lineterminator='\r\n' 
                     writer.writerow([t, current, voltage])
         data_accum[:, 1] += acquisition
             
@@ -151,7 +163,7 @@ plt.plot(data_accum[:,0], data_accum[:, 1], label = r'$I_{DS}$', color='red', li
 # set labels and a title
 plt.xlabel('Time / s', fontsize=14)
 plt.ylabel('Current / A', fontsize=14)
-plt.title('Photosensitive test' + r', $Cycles$ = ' + str(cycle) + r', $V$ = ' + str(drain_bias), fontsize=14)
+plt.title(time_for_title + r', $Cycles$ = ' + str(cycle) + r', $V$ = ' + str(drain_bias), fontsize=14)
 plt.tick_params(labelsize = 14)
 plt.legend(loc = 'upper right')
 

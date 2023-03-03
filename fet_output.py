@@ -5,10 +5,10 @@ import datetime
 import csv
 import numpy as np
 
-drain_start = 0
-drain_end = 0.1
-drain_step = 0.004
-gate_bias = 0
+drain_start = -5.0
+drain_end = 5.0
+drain_step = 0.04
+gate_bias = -20.0
 
 
 if drain_start > drain_end:

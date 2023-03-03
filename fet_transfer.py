@@ -8,7 +8,9 @@ import numpy as np
 gate_start = 40.2
 gate_end = -40.2
 gate_step = 0.25
-drain_bias = +5
+drain_bias = -5.0
+
+sample_name = 's10'
 
 
 if gate_start > gate_end:
@@ -71,7 +73,7 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
 time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
-filename_csv = './data/' + 'FET_' + time_for_name + '_vds_' + str(drain_bias) + '.csv'
+filename_csv = './data/' + 'FET_' + time_for_name + '_' +  sample_name + '_vds_' + str(drain_bias) + '.csv'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv

@@ -11,8 +11,9 @@
 использовать yticks()  / ticker
 https://stackoverflow.com/questions/25750170/show-decimal-places-and-scientific-notation-on-the-axis-of-a-matplotlib-plot
 https://queirozf.com/entries/matplotlib-examples-number-formatting-for-axes-labels
+основная проблема - числа при -4...-5 степени, когда матплотлиб еще не переходит на экпоненциальную запись
 
-4.разьем купить 25 контактный (https://www.chipdip.ru/product/db-25m)
+4. (Done) разьем купить 25 контактный (https://www.chipdip.ru/product/db-25m)
 
 5. (Done) писать во время задержки сколько прошло из всей задержки. И иметь возможность также прервать её с клавиатуры
 

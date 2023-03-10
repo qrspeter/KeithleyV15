@@ -5,12 +5,12 @@ import datetime
 import csv
 import numpy as np
 
-gate_start = 40.2
-gate_end = -40.2
+gate_start = 0.0
+gate_end = -10.0
 gate_step = 0.25
-drain_bias = -5.0
+drain_bias = -0.1
 
-sample_name = 's10'
+sample_name = 's4'
 
 
 if gate_start > gate_end:

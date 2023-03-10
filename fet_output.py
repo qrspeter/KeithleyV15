@@ -5,11 +5,12 @@ import datetime
 import csv
 import numpy as np
 
-drain_start = -5.0
-drain_end = 5.0
-drain_step = 0.04
-gate_bias = -20.0
+drain_start = 0.0
+drain_end = -0.3
+drain_step = 0.02
+gate_bias = -5.0
 
+sample_name = 's10'
 
 if drain_start > drain_end:
     drain_step = -1 * np.abs(drain_step)
@@ -54,8 +55,8 @@ smu_gate.set_current_range(current_range)
 smu_gate.set_current_limit(current_range)
 smu_gate.set_current(0)
 
-smu_drain.set_measurement_speed_normal()
-#smu_ch.set_measurement_speed_hi_accuracy()
+#smu_drain.set_measurement_speed_normal()
+smu_drain.set_measurement_speed_hi_accuracy()
 smu_gate.set_measurement_speed_fast()
 '''
 40 измерений (20В по 0,25)
@@ -71,7 +72,7 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
 time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
-filename_csv = './data/' + 'FET_' + time_for_name + '_vgs_' + str(gate_bias) + '.csv'
+filename_csv = './data/' + 'FET_' + sample_name + '_' + time_for_name + '_vgs_' + str(gate_bias) + '.csv'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv

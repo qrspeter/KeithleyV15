@@ -7,17 +7,17 @@ import numpy as np
 
 
 
-drain_bias = 1.0
-cycles = 4
+drain_bias = 5.0
+cycles = 32
 measurements = 10
 halfperiods = 5
 data_length = measurements * halfperiods
 
-sample_name = ''
+sample_name = 'p3'
 
-delay = 30
+delay = 60
 
-current_range = 5e-2
+current_range = 1e-3
 '''
 Press Ctrl-C to terminate the loop.
 
@@ -106,7 +106,7 @@ except KeyboardInterrupt:
     
 # step through the voltages and get the values from the device
 cycle = 0
-
+start_av = time.time()
 try:
     print('Measurement started. Press Ctl+C to escape')
     while True and cycle < cycles:
@@ -121,7 +121,7 @@ try:
                 acquisition[curr_elem] = current
                 t = time.time() - start
                 if cycle == 0:
-                    data_accum[curr_elem, 0] = t
+                    data_accum[curr_elem, 0] = t - (start_av - start)
                 print('Cycle ' + str(cycle) + ', Point ' + str(curr_elem)+ ', Current ' + str(current) + ' A')
                     
                 # Write the raw data in a csv

@@ -18,8 +18,8 @@ smu = sm.get_channel(sm.CHANNEL_A)
 #define a variable "current range" to be able to change it quickly for future measurements
 
 # define sweep parameters
-sweep_start = 5.0
-sweep_end = -5.0
+sweep_start = 0.0
+sweep_end = 20.0
 sweep_step = 0.1
 
 if sweep_start > sweep_end:
@@ -31,7 +31,7 @@ steps = int((sweep_end - sweep_start) / sweep_step)
 
 
 
-sample_name = '12_D-S'
+sample_name = 'p1'
 
 current_range = 1e-3
 current_range_for_name = str(current_range)
@@ -90,7 +90,8 @@ smu.enable_output()
 smu.set_voltage(sweep_start)
 smu.measure_current_and_voltage()
 
-
+smu.set_voltage(sweep_start)
+smu.measure_current_and_voltage()
 # step through the voltages and get the values from the device
 for nr in range(steps):
     # calculate the new voltage we want to set

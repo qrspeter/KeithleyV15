@@ -3,9 +3,8 @@
 
 2. вместо исключения использовать сигнал?
 # https://www.adamsmith.haus/python/answers/how-to-kill-a-while-loop-with-a-key-stroke-in-python
-
 # https://stackoverflow.com/questions/18994912/ending-an-infinite-while-loop
-
+(забил, хотя конечно нехорошо останавливать цикл той же командой, что прерывает программу вообще, да и исключения - не лучший механизм для ожидаемых процессов)
 
 3. что-то сделать с длинными числами вертикальной оси
 использовать yticks()  / ticker

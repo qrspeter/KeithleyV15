@@ -6,11 +6,11 @@ import csv
 import numpy as np
 
 drain_start = 0.0
-drain_end = -0.3
-drain_step = 0.02
-gate_bias = -5.0
+drain_end = -20.0
+drain_step = 0.5
+gate_bias = -20.0
 
-sample_name = 's10'
+sample_name = '1_p1'
 
 if drain_start > drain_end:
     drain_step = -1 * np.abs(drain_step)
@@ -57,7 +57,7 @@ smu_gate.set_current(0)
 
 #smu_drain.set_measurement_speed_normal()
 smu_drain.set_measurement_speed_hi_accuracy()
-smu_gate.set_measurement_speed_fast()
+smu_gate.set_measurement_speed_hi_accuracy()
 '''
 40 измерений (20В по 0,25)
 set_measurement_speed_hi_accuracy - 37 секунд (1.41859e-09 A)

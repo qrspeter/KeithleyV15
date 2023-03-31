@@ -5,15 +5,15 @@ import datetime
 import csv
 import numpy as np
 
-
+# может интервал задавать в секундах, и внутри них уже считать? А то сейчас не предсказать длительность интервала.
 
 drain_bias = 5.0
 cycles = 32
 measurements = 10
-halfperiods = 5
+halfperiods = 10
 data_length = measurements * halfperiods
 
-sample_name = 'p3'
+sample_name = 'subs3'
 
 delay = 60
 
@@ -133,6 +133,7 @@ try:
             
             
         cycle += 1    
+        
 
 except KeyboardInterrupt:
     sm.write_lua("digio.writebit(1,{})".format(0))

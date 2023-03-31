@@ -5,6 +5,21 @@ import datetime
 import csv
 import numpy as np
 
+# define sweep parameters
+sweep_start = 0.0
+sweep_end = 10.0
+sweep_step = 0.1
+
+sample_name = 'subs7'
+
+if sweep_start > sweep_end:
+    sweep_step = -1 * np.abs(sweep_step)
+else:
+    sweep_step = np.abs(sweep_step)
+    
+steps = int((sweep_end - sweep_start) / sweep_step)
+
+
 """ ******* Connect to the Sourcemeter ******** """
 
 # initialize the Sourcemeter and connect to it
@@ -17,23 +32,8 @@ smu = sm.get_channel(sm.CHANNEL_A)
 """ ******* Configure the SMU Channel A ******** """
 #define a variable "current range" to be able to change it quickly for future measurements
 
-# define sweep parameters
-sweep_start = 0.0
-sweep_end = 20.0
-sweep_step = 0.1
 
-if sweep_start > sweep_end:
-    sweep_step = -1 * np.abs(sweep_step)
-else:
-    sweep_step = np.abs(sweep_step)
-    
-steps = int((sweep_end - sweep_start) / sweep_step)
-
-
-
-sample_name = 'p1'
-
-current_range = 1e-3
+current_range = 1e-2
 current_range_for_name = str(current_range)
 
 # reset to default settings

@@ -5,11 +5,13 @@
 
 
 KeithleyV15.py - KeithleyV15 library
-iv_curve.py - IV measurement I(V)
-fet_output.py - Output curve Ids(Vds) at given Vgs
-fet_transfer - Transfer curve Ids(Vgs) at given Vds
-fet_stability.py - Ids(t) at given Vds and Vgs
-photocurrent - I(t) at given V with pulsed laser and accumulation in cycles (and with delay)
+diode_iv.py - IV measurement I(V)
+diode_temporal - I(t) at given U until break
+diode_pulsed - I(t)  at given V with pulsed laser. With delay and accumulation.
+fet_output.py - output curve Ids(Vds) at given Vgs
+fet_transfer - transfer curve Ids(Vgs) at given Vds
+fet_temporal.py - Ids(t) at given Vds and Vgs until break
+fet_pulsed - I(t) at given V with pulsed laser and accumulation in cycles (and with delay). With delay and accumulation.
 
 Data are saved into ./data/ folder
 

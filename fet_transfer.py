@@ -6,11 +6,11 @@ import csv
 import numpy as np
 
 gate_start = 0.0
-gate_end = -10.0
+gate_end = -40.0
 gate_step = 0.25
-drain_bias = -0.1
+drain_bias = -2.0
 
-sample_name = 's4'
+sample_name = 'SofGr_1'
 
 
 if gate_start > gate_end:
@@ -56,9 +56,10 @@ smu_gate.set_current_range(current_range)
 smu_gate.set_current_limit(current_range)
 smu_gate.set_current(0)
 
-smu_drain.set_measurement_speed_normal()
-#smu_ch.set_measurement_speed_hi_accuracy()
-smu_gate.set_measurement_speed_fast()
+#smu_drain.set_measurement_speed_normal()
+smu_drain.set_measurement_speed_hi_accuracy()
+smu_gate.set_measurement_speed_hi_accuracy()
+#smu_gate.set_measurement_speed_normal()
 '''
 40 измерений (20В по 0,25)
 set_measurement_speed_hi_accuracy - 37 секунд (1.41859e-09 A)

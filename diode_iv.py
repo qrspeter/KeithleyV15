@@ -10,7 +10,7 @@ sweep_start = 0.0
 sweep_end = 10.0
 sweep_step = 0.1
 
-sample_name = 'subs7'
+sample_name = 'rGO_B_DC_px5'
 
 if sweep_start > sweep_end:
     sweep_step = -1 * np.abs(sweep_step)
@@ -33,7 +33,7 @@ smu = sm.get_channel(sm.CHANNEL_A)
 #define a variable "current range" to be able to change it quickly for future measurements
 
 
-current_range = 1e-2
+current_range = 1e-3
 current_range_for_name = str(current_range)
 
 # reset to default settings

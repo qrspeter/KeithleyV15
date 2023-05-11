@@ -7,7 +7,9 @@
 KeithleyV15.py - KeithleyV15 library
 diode_iv.py - IV measurement I(V)
 diode_temporal - I(t) at given U until break
+diode_temporal_lockin - V(t) from lock-in detector
 diode_pulsed - I(t)  at given V with pulsed laser. With delay and accumulation.
+diode_pulsed_lockin - V(t) from lock-in detector
 fet_output.py - output curve Ids(Vds) at given Vgs
 fet_transfer - transfer curve Ids(Vgs) at given Vds
 fet_temporal.py - Ids(t) at given Vds and Vgs until break

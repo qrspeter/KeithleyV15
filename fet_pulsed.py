@@ -10,8 +10,8 @@ gate_bias = 0.0
 drain_bias = -5.0
 cycles = 32
 measurements = 10
-halfperiods = 5
-data_length = measurements * halfperiods
+periods = 5
+data_length = measurements * periods
 warm_up_pause = 3
 
 sample_name = 's10'
@@ -125,7 +125,7 @@ try:
     print('Measurement started. Press Ctl+C to escape')
     while True and cycle < cycles:
 
-        for i in range(halfperiods):
+        for i in range(periods):
             
             sm.write_lua("digio.writebit(1, {})".format(i%2))
             

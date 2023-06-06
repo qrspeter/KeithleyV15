@@ -87,7 +87,7 @@ start = time.time()
 with open(filename_raw_csv, 'a') as csvfile:
     writer = csv.writer(csvfile, lineterminator='\n')
     [current, voltage] = smu_drain.measure_current_and_voltage()
-    writer.writerow('Time / sec, \tCurrent / A')
+    writer.writerow(["# Time / sec, \tCurrent / A"])
     writer.writerow([0.0, current, voltage])
     
 measurements = 0

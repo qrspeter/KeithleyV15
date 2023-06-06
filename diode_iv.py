@@ -7,17 +7,17 @@ import numpy as np
 
 # define sweep parameters
 sweep_start = 0.0
-sweep_end = 10.0
+sweep_end = 5.0
 sweep_step = 0.1
 
-sample_name = 'rGO_B_DC_px5'
+sample_name = 'GrGr_px5'
 
 if sweep_start > sweep_end:
     sweep_step = -1 * np.abs(sweep_step)
 else:
     sweep_step = np.abs(sweep_step)
     
-steps = int((sweep_end - sweep_start) / sweep_step)
+steps = int((sweep_end - sweep_start) / sweep_step) + 1
 
 
 """ ******* Connect to the Sourcemeter ******** """
@@ -33,7 +33,7 @@ smu = sm.get_channel(sm.CHANNEL_A)
 #define a variable "current range" to be able to change it quickly for future measurements
 
 
-current_range = 1e-3
+current_range = 5e-3
 current_range_for_name = str(current_range)
 
 # reset to default settings

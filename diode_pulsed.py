@@ -9,14 +9,14 @@ import numpy as np
 
 drain_bias = 1.0 
 periods = 5 
-pulse_length = 5.0 # seconds 
-cycles = 4
+pulse_length = 10.0 # seconds 
+cycles = 8
 
-sample_name = 'rGO_B_DC_px5'
+sample_name = 'GrGr-px2'
 
 delay = 60 # seconds
 
-current_range = 1e-3
+current_range = 3e-3
 '''
 Press Ctrl-C to terminate the loop.
 
@@ -81,40 +81,56 @@ sm.write_lua("digio.writebit(1, 0)")
 
 
 smu_drain.set_voltage(drain_bias)
+
 start = time.time()
 
+with open(filename_raw_csv, 'a') as csvfile:
+    writer = csv.writer(csvfile, lineterminator='\n')
+    [current, voltage] = smu_drain.measure_current_and_voltage()
+    writer.writerow('Time / sec, \tCurrent / A')
+    writer.writerow([0.0, current, voltage])
+    
+measurements = 0
+
+
 try:
-    print('Waiting for warm-up for {} seconds. Press Ctl+C to escape'.format(delay))
-    t = time.time() - start
+    print('Waiting for warm-up for {} seconds. Press Ctl+C to escape (not earlier than {} sec).'.format(delay, pulse_length))
+    t = 0 #start - start # like a "t = 0"
+    first_meas = 0
+#    time.time() - start
     while True and t < delay:
         [current, voltage] = smu_drain.measure_current_and_voltage()
         t = time.time() - start
         with open(filename_raw_csv, 'a') as csvfile:
-            writer = csv.writer(csvfile, lineterminator='\n') # default delimiter=',', lineterminator='\r\n' 
+            writer = csv.writer(csvfile, lineterminator='\n') # default delimiter=',' 
             writer.writerow([t, current, voltage]) 
+        if measurements == 0:
+            first_meas = t
+        if t < pulse_length + first_meas: # Calculating data poins for selected time interval
+            measurements += 1
+
         print('Time ' + str(int(t)) + ' sec, Voltage ' + str(voltage)+ ', Current ' + str(current) + ' A')
     #    time.sleep(3)
 except KeyboardInterrupt:
     pass    
     
-    
-measurements = 0
-print('Calculating data poins for selected time interval')
-start_calc = time.time() - start
-while t - start_calc < pulse_length:
-    [current, voltage] = smu_drain.measure_current_and_voltage()
-    measurements += 1
-    t = time.time() - start
-    with open(filename_raw_csv, 'a') as csvfile:
-        writer = csv.writer(csvfile, lineterminator='\n') # default delimiter=',', lineterminator='\r\n' 
-        writer.writerow([t, current, voltage]) 
-    print(current, voltage)
-
 
 data_length = measurements * periods # sample time is pulse_length * periods
 # define variables we store the measurement in
-data_accum = np.zeros((data_length, 2))
+data_accum = np.zeros((data_length, 2)) # One for time and one accumulated data
 acquisition = np.zeros(data_length)
+
+
+plt.ion()  # enable interactivity
+fig = plt.figure()  # make a figure
+ax = fig.add_subplot(111)
+line1, = ax.plot(data_accum[:, 0], data_accum[:, 1], color='blue', linewidth=2)
+#line1, = ax.plot(time_arr, drain_current, label = r'$I_{DS}$', color='red', linewidth=2)
+plt.xlabel('Time / s', fontsize=14)
+plt.ylabel('Voltage / V', fontsize=14)
+plt.title(time_for_title, fontsize=14)
+plt.tick_params(labelsize = 14)
+
     
 # step through the voltages and get the values from the device
 cycle = 0
@@ -142,14 +158,21 @@ try:
                     writer.writerow([t, current, voltage])
         data_accum[:, 1] += acquisition
             
-            
-            
         cycle += 1    
+
+        line1.set_xdata(data_accum[:, 0])
+        line1.set_ydata(data_accum[:, 1]/cycle)
+        ax.relim()
+        ax.autoscale()
+        fig.canvas.draw()
+        fig.canvas.flush_events()
         
 
 except KeyboardInterrupt:
     sm.write_lua("digio.writebit(1,{})".format(0))
     #pass
+
+plt.ioff()
 
 sm.write_lua("digio.writebit(1,{})".format(0))
 

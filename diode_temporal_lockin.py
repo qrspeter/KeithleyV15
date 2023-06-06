@@ -7,7 +7,7 @@ import datetime
 import csv
 import numpy as np
 
-sample_name = 'rGO_22nF'
+sample_name = 'rGO_px1'
 
 #drain_bias = 1.0
 
@@ -75,7 +75,7 @@ ax = fig.add_subplot(111)
 line1, = ax.plot(time_arr, drain_voltage, 'r.')
 #line1, = ax.plot(time_arr, drain_current, label = r'$I_{DS}$', color='red', linewidth=2)
 plt.xlabel('Time / s', fontsize=14)
-plt.ylabel('Voltafe / V', fontsize=14)
+plt.ylabel('Voltage / V', fontsize=14)
 plt.title(time_for_title, fontsize=14)
 plt.tick_params(labelsize = 14)
 

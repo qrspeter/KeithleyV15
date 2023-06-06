@@ -5,12 +5,12 @@ import datetime
 import csv
 import numpy as np
 
-sample_name = 'rGO-PSS_px5'
+sample_name = 'GrGr_px3'
 
 drain_bias = 1.0
 
 
-current_range = 1e-3
+current_range = 3e-3
 current_range_for_name = str(current_range)
 
 """ ******* Connect to the Sourcemeter ******** """

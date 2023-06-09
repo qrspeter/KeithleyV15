@@ -6,14 +6,16 @@
 
 KeithleyV15.py - KeithleyV15 library
 diode_iv.py - IV measurement I(V)
-diode_pulsed - I(t)  at given V with TTL controlled laser with start delay and accumulation.
-diode_pulsed_lockin - V(t) (for measuring voltage from lock-in detector)
-diode_temporal - I(t) at given V until break.
-diode_temporal_lockin - V(t) (for measuring voltage from lock-in detector)
+diode_iv_multiple.py - IV measurement I(V) for many samples into one file
+diode_temporal - I(t) at given U until break
+diode_temporal_lockin - V(t) from lock-in detector
+diode_pulsed - I(t)  at given V with pulsed laser. With delay and accumulation.
+diode_pulsed_multiple - I(t)  at given V with pulsed laser. With delay and accumulation. For many samples into one file.
+diode_pulsed_lockin - V(t) from lock-in detector
 fet_output.py - output curve Ids(Vds) at given Vgs
-fet_pulsed - I(t) at given V with pulsed laser and accumulation in cycles (and with delay). 
 fet_transfer - transfer curve Ids(Vgs) at given Vds
 fet_temporal.py - Ids(t) at given Vds and Vgs until break
+fet_pulsed - I(t) at given V with pulsed laser and accumulation in cycles (and with delay). With delay and accumulation.
 
 Data are saved into ./data/ folder
 

@@ -7,12 +7,12 @@ import numpy as np
 
 # total time is cycles * (pulse_length * periods) + delay
 
-drain_bias = 1.0 
+drain_bias = 3.0 
 periods = 5 
 pulse_length = 10.0 # seconds 
 cycles = 8
 
-sample_name = 'GrGr-px2'
+sample_name = 'roG-px2'
 
 delay = 60 # seconds
 
@@ -87,7 +87,7 @@ start = time.time()
 with open(filename_raw_csv, 'a') as csvfile:
     writer = csv.writer(csvfile, lineterminator='\n')
     [current, voltage] = smu_drain.measure_current_and_voltage()
-    writer.writerow(["# Time / sec, \tCurrent / A"])
+    writer.writerow(["# Time / sec", "Current / A"])
     writer.writerow([0.0, current, voltage])
     
 measurements = 0

@@ -10,7 +10,7 @@ sweep_start = 0.0
 sweep_end = 5.0
 sweep_step = 0.1
 
-sample_name = 'GrGr-NPl'
+sample_name = 'rGO_heated'
 
 if sweep_start > sweep_end:
     sweep_step = -1 * np.abs(sweep_step)
@@ -92,7 +92,7 @@ data.append(voltages)
 print("Sample name: ", sample_name)
 
 while True:
-    print('Enter sample number: ')
+    print('Enter sample label (or press Enter to finish): ')
     sample_num = input()
     if sample_num == "":
         break
@@ -111,7 +111,7 @@ while True:
         # get current and voltage from the SMU and append it to the list so we can plot it later
         [current, voltage] = smu.measure_current_and_voltage()
         currents[nr] = current
-        print(str(voltage) +' V; '+str(current)+' A')
+        print(str('%.2f' % voltage) +' V; '+str('%.5e' % current)+' A')
 
     data.append(currents)
     fig = plt.figure(figsize=(8,6))

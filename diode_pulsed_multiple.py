@@ -3,15 +3,16 @@ import matplotlib.pyplot as plt
 import time
 import datetime
 import csv
+import winsound
 import numpy as np
 
 import time, traceback
 
-sample_name = 'GrGr-NPl-1week'
+sample_name = 'rGO_heated'
 
-drain_bias = 1.0 # V
+drain_bias = 5.0 # V
 step = 0.4 # sec А вот 0.3 уже сбивается.
-delay = 60 # sec Delay for warm-up
+delay = 10 # sec Delay for warm-up
 periods = 8 # periods of acqusition for averaging
 laser_pulses = 2 # pulses inside a period
 laser_on = 10 # sec
@@ -44,10 +45,7 @@ def warm_up(start_meas, data_raw):
         for i in range(length):
 
             [current, voltage] = smu_drain.measure_current_and_voltage()
-            # with open(filename_raw, 'a') as csvfile:
-                # writer = csv.writer(csvfile, lineterminator='\n') 
-                # writer.writerow([nt - start_meas, current])
-            print(nt - start_meas, current, voltage)
+            print('%.2f' % (nt - start_meas),  '%.5e' % current, '%.2f' % voltage)
             data_raw[i] = current
 
             while nt - start_warm_up < step * (i + 1):
@@ -61,45 +59,25 @@ def acquisition(start_meas, arr, data_raw, offset):
     start_pulse = time.time()
     nt = time.time()
     laser_state = 0
-    sm.write_lua("digio.writebit(1, {})".format(laser_state))
+    sm.write_lua("digio.writebit(1, 0)")
     
     for i in range(arr.size):
         length_on = int(laser_on / step)
         length_off = int(laser_off / step)
         a = i % (length_on + length_off)
-        if a < length_off:
+        if a < length_off: # была еще проверка and laser_state != 0, но какие-то сбои были
             laser_state = 0
             sm.write_lua("digio.writebit(1, {})".format(laser_state))
         else:
             laser_state = 1
             sm.write_lua("digio.writebit(1, {})".format(laser_state))
             
- # надо ввести деление на длину и смотреть остаток вместо трех сравнений
-        # a = i % (int(laser_on / step) + int(laser_off / step))
-        # if (a > int(laser_off / step) ) and (laser_state == 0):
-            # laser_state = 1
-            # sm.write_lua("digio.writebit(1, {})".format(laser_state))
-        # elif (a < int(laser_off / step) ) and (laser_state == 1):
-            # laser_state = 0
-            # sm.write_lua("digio.writebit(1, {})".format(laser_state))
-
-       
- # # for laser_before, laser_on and laser_off
-        # if (i > laser_before / step) and (i < (laser_on + laser_before) / step) and (laser_state == 0):
-            # laser_state = 1
-            # sm.write_lua("digio.writebit(1, {})".format(laser_state))
-        # elif (i > (laser_on + laser_before) / step) and (laser_state == 1):
-            # laser_state = 0
-            # sm.write_lua("digio.writebit(1, {})".format(laser_state))
-        
-
-
 
         [current, voltage] = smu_drain.measure_current_and_voltage()
         # with open(filename_raw, 'a') as csvfile:
             # writer = csv.writer(csvfile, lineterminator='\n') 
             # writer.writerow([nt - start_meas, current])
-        print(nt - start_meas, current, voltage)
+        print('%.2f' % (nt - start_pulse), '%.5e' % current, '%.2f' % voltage, 'laser_state=', laser_state)
         arr[i] = current
         data_raw[i + offset] = current
         
@@ -107,8 +85,7 @@ def acquisition(start_meas, arr, data_raw, offset):
         while nt - start_pulse < step * (i + 1):
             nt = time.time()   
    
-    laser_state = 0
-    sm.write_lua("digio.writebit(1, {})".format(laser_state))
+    sm.write_lua("digio.writebit(1, 0)")
 
 
 
@@ -197,7 +174,7 @@ print("Sample name: ", sample_name)
 
 
 while True:
-    print('Enter sample number: ')
+    print('Enter sample label (or press Enter to finish): ')
     sample_num = input()
     if sample_num == "":
         break
@@ -232,10 +209,6 @@ while True:
             print('Cycle ', i + 1, ' from ', periods)
 
             data_accum += data_acq
-            
- #           raw_pos = delay_length + i * period_length
- #           data_raw[raw_pos:(raw_pos + period_length)] = data_acq
-
                         
             line1.set_xdata(timestamp_accum)
             line1.set_ydata(data_accum / (i + 1))
@@ -245,7 +218,7 @@ while True:
             fig.canvas.flush_events()
 
     except KeyboardInterrupt:
-        sm.write_lua("digio.writebit(1,{})".format(0))
+        sm.write_lua("digio.writebit(1,0)")
 
     plt.ioff()
 
@@ -277,7 +250,10 @@ while True:
     plt.show()
     
     # sound alarm - end of accumulation
-    print('\a')
+#    print('\a')
+    for i in range(3):
+        winsound.Beep(1000, 300)
+    
 
 
 

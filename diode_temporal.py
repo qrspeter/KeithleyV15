@@ -5,10 +5,11 @@ import datetime
 import csv
 import numpy as np
 
-sample_name = 'GrGr_px3'
+sample_name = 'GrGr_90m_70C_p3'
 
-drain_bias = 1.0
+drain_bias = 1.0 # V
 
+step = 1.0 # in sec. Not less than 0.7 for hi_accuracy and 0.4 for speed_normal
 
 current_range = 3e-3
 current_range_for_name = str(current_range)
@@ -35,7 +36,7 @@ smu_drain.set_current_limit(current_range)
 smu_drain.set_current(0)
 
 smu_drain.set_measurement_speed_hi_accuracy()
-#smu_drain.set_measurement_speed_hi_accuracy()
+#smu_drain.set_measurement_speed_normal()
 
 '''
 40 измерений (20В по 0,25)
@@ -57,7 +58,7 @@ filename_csv = './data/' + 'I_T_' + sample_name + '_' + time_for_name + '_vds_' 
 # Header for csv
 with open(filename_csv, 'a') as csvfile:
         writer = csv.writer(csvfile,  lineterminator='\n')
-        writer.writerow(["# Time / sec", "Drain / A", "Drain / V"])
+        writer.writerow(["# Time (sec)", "Drain (A)", "Drain (V)"])
 
 
 # define variables we store the measurement in
@@ -77,29 +78,36 @@ plt.ylabel('Current / A', fontsize=14)
 plt.title(time_for_title + r', $V_{DS}$ = ' + str(drain_bias), fontsize=14)
 plt.tick_params(labelsize = 14)
 
+# to skip drawing of first dot (draws with a big delay)
+line1.set_xdata(time_arr)
+line1.set_ydata(drain_current)
+ax.relim()
+ax.autoscale()
+fig.canvas.draw()
+fig.canvas.flush_events()
+
+
 smu_drain.set_voltage(drain_bias)
 # to skip the first measurement
 smu_drain.measure_current_and_voltage()
 
-    
-start = time.time()
-# step through the voltages and get the values from the device
-
-
+  
 try:
+    start = time.time()
+#    nt = time.time()
+
     while True:
 
+        nt = time.time()
         [current, voltage] = smu_drain.measure_current_and_voltage()
         drain_current.append(current)
+        time_arr.append(nt - start)
         
-        t = time.time() - start
-        time_arr.append(t)
-        
-        print(str(t)+ ' sec; '+str(current)+' A')
+        print('%.2f' % (nt - start), ' sec; ', current, ' A')
         # Write the data in a csv
         with open(filename_csv, 'a') as csvfile:
             writer = csv.writer(csvfile,  lineterminator='\n')
-            writer.writerow([t, current, drain_bias])
+            writer.writerow(['%.3f' % (nt - start), current, drain_bias])
 
         line1.set_xdata(time_arr)
         line1.set_ydata(drain_current)
@@ -107,6 +115,10 @@ try:
         ax.autoscale()
         fig.canvas.draw()
         fig.canvas.flush_events()
+
+        while (nt - start) < (step * len(time_arr)):
+#            print(nt - start)
+            nt = time.time() 
 
 except KeyboardInterrupt:
     smu_drain.disable_output()

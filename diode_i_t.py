@@ -5,9 +5,9 @@ import datetime
 import csv
 import numpy as np
 
-sample_name = 'GrGr_90m_70C_p3'
+sample_name = 'rGO_centrif_p3_water'
 
-drain_bias = 1.0 # V
+drain_bias = 2.0 # V
 
 step = 1.0 # in sec. Not less than 0.7 for hi_accuracy and 0.4 for speed_normal
 
@@ -94,7 +94,6 @@ smu_drain.measure_current_and_voltage()
   
 try:
     start = time.time()
-#    nt = time.time()
 
     while True:
 
@@ -117,7 +116,6 @@ try:
         fig.canvas.flush_events()
 
         while (nt - start) < (step * len(time_arr)):
-#            print(nt - start)
             nt = time.time() 
 
 except KeyboardInterrupt:
@@ -129,4 +127,6 @@ smu_drain.disable_output()
 sm.disconnect()
 
 plt.ioff()
+
+plt.savefig(filename_csv[:-4] + '.png')
 plt.show()

@@ -10,7 +10,7 @@ sweep_start = 0.0
 sweep_end = 5.0
 sweep_step = 0.1
 
-sample_name = 'rGO_heated'
+sample_name = 'rGO_centrif_heated'
 
 if sweep_start > sweep_end:
     sweep_step = -1 * np.abs(sweep_step)
@@ -89,7 +89,7 @@ column_names.append("Voltage (V)")
 
 data.append(voltages)
 
-print("Sample name: ", sample_name)
+print("Sample set name: ", sample_name)
 
 while True:
     print('Enter sample label (or press Enter to finish): ')
@@ -116,8 +116,8 @@ while True:
     data.append(currents)
     fig = plt.figure(figsize=(8,6))
     plt.plot(voltages, currents, label = sample_num, linewidth=2)
-    plt.xlabel('Voltage / V', fontsize=14)
-    plt.ylabel('Current / A', fontsize=14)
+    plt.xlabel('Voltage (V)', fontsize=14)
+    plt.ylabel('Current (A)', fontsize=14)
     plt.title(time_for_title, fontsize=14)
     plt.tick_params(labelsize = 14)
     plt.legend(loc='upper left')
@@ -141,10 +141,11 @@ sm.disconnect()
 fig = plt.figure(figsize=(8,6))
 for i in range(np_data.shape[0]-1):
     plt.plot(np_data[0, :], np_data[i+1,:], label = column_names[i + 1], linewidth=2)
-plt.xlabel('Voltage / V', fontsize=14)
-plt.ylabel('Current / A', fontsize=14)
+plt.xlabel('Voltage (V)', fontsize=14)
+plt.ylabel('Current (A)', fontsize=14)
 plt.title(time_for_title, fontsize=14)
 plt.tick_params(labelsize = 14)
 plt.legend(loc='upper left')
+plt.savefig(filename_csv[:-4] + '.png')
 plt.show()
 

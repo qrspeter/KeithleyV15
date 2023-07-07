@@ -6,33 +6,25 @@ import csv
 import winsound
 import numpy as np
 
-import time, traceback
+import time
 
-sample_name = 'rGO_heated'
+sample_name = 'rGO_centrif_heated'
 
-drain_bias = 5.0 # V
-step = 0.4 # sec А вот 0.3 уже сбивается.
-delay = 10 # sec Delay for warm-up
-periods = 8 # periods of acqusition for averaging
-laser_pulses = 2 # pulses inside a period
-laser_on = 10 # sec
-laser_off = 10  # sec
+drain_bias = 2.0 # V
+step = 0.4 # sec, errors if time is shorter
+delay = 60 # sec, Delay for warm-up
+periods = 4 # periods of acqusition for averaging
 
-'''
-period = laser_off + laser_pulses * (laser_on + laser_off)
+period = 150 # sec, repetition period of laser pulses
+laser = 40  # sec, length of a single laser pulse
+laser_delay = 5  # sec, pulse delay from the beginning of each period
 
-measurement = delay + periods * period
+current_range = 15e-3
 
 '''
-
-current_range = 3e-3
-
+Press Ctrl-C to terminate any loop.
 '''
-Press Ctrl-C to terminate the loop.
-
-
-'''
-# надо рисование графиков в async/thread  перевести, чтобы не блокировали программу
+# it is better to move graphs to some thread because they block main function
 
 def warm_up(start_meas, data_raw):
     try:
@@ -62,10 +54,7 @@ def acquisition(start_meas, arr, data_raw, offset):
     sm.write_lua("digio.writebit(1, 0)")
     
     for i in range(arr.size):
-        length_on = int(laser_on / step)
-        length_off = int(laser_off / step)
-        a = i % (length_on + length_off)
-        if a < length_off: # была еще проверка and laser_state != 0, но какие-то сбои были
+        if (i * step < laser_delay) or (i * step > laser_delay + laser): 
             laser_state = 0
             sm.write_lua("digio.writebit(1, {})".format(laser_state))
         else:
@@ -74,9 +63,6 @@ def acquisition(start_meas, arr, data_raw, offset):
             
 
         [current, voltage] = smu_drain.measure_current_and_voltage()
-        # with open(filename_raw, 'a') as csvfile:
-            # writer = csv.writer(csvfile, lineterminator='\n') 
-            # writer.writerow([nt - start_meas, current])
         print('%.2f' % (nt - start_pulse), '%.5e' % current, '%.2f' % voltage, 'laser_state=', laser_state)
         arr[i] = current
         data_raw[i + offset] = current
@@ -86,10 +72,6 @@ def acquisition(start_meas, arr, data_raw, offset):
             nt = time.time()   
    
     sm.write_lua("digio.writebit(1, 0)")
-
-
-
-
 
 
 
@@ -117,12 +99,10 @@ smu_drain.set_current(0)
 
 smu_drain.set_measurement_speed_hi_accuracy()
 
-
-#smu_ch.set_measurement_speed_hi_accuracy()
 '''
-40 измерений (20В по 0.25)
-set_measurement_speed_hi_accuracy - 37 секунд (1.41859e-09 A)
-set_measurement_speed_fast - 2 секунды (4.65035e-08 A)
+40 measurements (20В по 0.25) take time:
+set_measurement_speed_hi_accuracy - 37 sec (1.41859e-09 A)
+set_measurement_speed_fast - 2 sec (4.65035e-08 A, less precision)
 
 SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 '''
@@ -135,7 +115,7 @@ time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 filename_av = './data/' + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_vds_' + str(drain_bias) +  '_cycles_' + str(periods) + '.csv'
 filename_raw = './data/' + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_raw' + '.csv'
 
-""" ******* Make a voltage-sweep and do some measurements ******** """
+""" ******* Do some measurements ******** """
 
 
 # enable the output
@@ -147,8 +127,12 @@ sm.write_lua("digio.writebit(1, 0)")
 
 smu_drain.set_voltage(drain_bias)
 
-period_length = laser_pulses * (int(laser_off/ step) + int(laser_on / step)) + int(laser_off/ step)
-#period_length = int(laser_off/ step) + int(laser_on / step) + int(laser_before / step)
+# check timing conditions
+if period < laser + laser_delay:
+    print("Check timing parameters - period, laser and laser_delay")
+    exit()
+
+period_length = int(period / step)
 delay_length = int(delay / step)
 data_raw_length = delay_length + period_length * periods
 
@@ -164,26 +148,22 @@ lst_accum = []
 lst_raw = []
 
 column_names.append("Time (sec)")
-#column_names += "Voltage (V)"
 
 lst_accum.append(timestamp_accum)
 lst_raw.append(timestamp_raw)
 
-print("Sample name: ", sample_name)
-
-
+print("Sample set name: ", sample_name)
 
 while True:
     print('Enter sample label (or press Enter to finish): ')
-    sample_num = input()
-    if sample_num == "":
+    sample_label = input()
+    if sample_label == "":
         break
-
 
     data_accum.fill(0.0)
     data_raw.fill(0.0)
     
-    column_names.append(sample_num)
+    column_names.append(sample_label)
     data_acq = np.zeros(period_length)
     
     start_meas = time.time()
@@ -193,7 +173,6 @@ while True:
     fig = plt.figure()  # make a figure
     ax = fig.add_subplot(111)
     line1, = ax.plot(timestamp_accum, data_accum, color='blue', linewidth=2)
-    #line1, = ax.plot(time_arr, drain_current, label = r'$I_{DS}$', color='red', linewidth=2)
     plt.xlabel('Time / s', fontsize=14)
     plt.ylabel('Voltage / V', fontsize=14)
     plt.title(time_for_title, fontsize=14)
@@ -227,21 +206,16 @@ while True:
     lst_accum.append(data_accum.copy())
     lst_raw.append(data_raw.copy())
     
-
     np_data_accum   = np.stack(lst_accum, axis=0)
     np_data_raw     = np.stack(lst_raw, axis=0)
     
-
     delim = ','
     column_names_str = delim.join(column_names)
     np.savetxt(filename_av, np_data_accum.T, fmt='%.10g', delimiter=',', header=column_names_str) 
 
-
     np.savetxt(filename_raw, np_data_raw.T, fmt='%.10g', delimiter=",", header = column_names_str)
 
-
-
-    plt.plot(timestamp_accum, data_accum, label = 'I(t)', color='red', linewidth=2)
+    plt.plot(timestamp_accum, data_accum, label = sample_label, color='red', linewidth=2)
     plt.xlabel('Time (sec)', fontsize=14)
     plt.ylabel('Current (A)', fontsize=14)
     plt.title(time_for_title + r', $Periods$ = ' + str(periods) + r', $V$ = ' + str(drain_bias), fontsize=14)
@@ -255,8 +229,6 @@ while True:
         winsound.Beep(1000, 300)
     
 
-
-
 fig = plt.figure(figsize=(8,6))
 for i in range(np_data_accum.shape[0]-1):
     plt.plot(np_data_accum[0, :], np_data_accum[i+1,:], label = column_names[i + 1], linewidth=2)
@@ -265,4 +237,5 @@ plt.ylabel('Current (A)', fontsize=14)
 plt.title(time_for_title, fontsize=14)
 plt.tick_params(labelsize = 14)
 plt.legend(loc='upper left')
+plt.savefig(filename_av[:-4] + '.png')
 plt.show()

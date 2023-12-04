@@ -4,8 +4,13 @@ import time
 import datetime
 import csv
 import numpy as np
-
-sample_name = 'rGO_centrif_p3_water'
+import os
+   
+direct = './data/'
+if not os.path.exists(direct):
+   os.makedirs(direct)
+   
+sample_name = 'rGO_CdSeQD_p3_IPA_405nm'
 
 drain_bias = 2.0 # V
 
@@ -52,7 +57,7 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
 time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
-filename_csv = './data/' + 'I_T_' + sample_name + '_' + time_for_name + '_vds_' + str(drain_bias) + '.csv'
+filename_csv = direct + 'I_T_' + sample_name + '_' + time_for_name + '_vds_' + str(drain_bias) + '.csv'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv

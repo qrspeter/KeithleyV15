@@ -4,7 +4,12 @@ import time
 import datetime
 import csv
 import numpy as np
-
+import os
+   
+direct = './data/'
+if not os.path.exists(direct):
+   os.makedirs(direct)
+   
 gate_start = 0.0
 gate_end = -40.0
 gate_step = 0.25
@@ -74,7 +79,7 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
 time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
-filename_csv = './data/' + 'FET_' + time_for_name + '_' +  sample_name + '_vds_' + str(drain_bias) + '.csv'
+filename_csv = direct + 'FET_' + time_for_name + '_' +  sample_name + '_vds_' + str(drain_bias) + '.csv'
 
 #initializing a CSV file, to which the measurement data will be written - if this script is used to measure another characteristic than the U/I curve, this has to be changed
 # Header for csv

@@ -5,12 +5,18 @@ import datetime
 import csv
 import numpy as np
 
+import os
+   
+direct = './data/'
+if not os.path.exists(direct):
+   os.makedirs(direct)
+   
 # define sweep parameters
 sweep_start = 0.0
 sweep_end = 5.0
 sweep_step = 0.1
 
-sample_name = 'rGO_centrif_heated'
+sample_name = 'rGO_CdSZnS'
 
 if sweep_start > sweep_end:
     sweep_step = -1 * np.abs(sweep_step)
@@ -64,7 +70,7 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 # Create unique filenames for saving the data
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
 time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-filename_csv = './data/' + time_for_name + '_' + sample_name +'_IV_' + str(sweep_end) + '.csv'
+filename_csv = direct + time_for_name + '_' + sample_name +'_IV_' + str(sweep_end) + '.csv'
 
 """ ******* Make a voltage-sweep and do some measurements ******** """
 
@@ -148,4 +154,5 @@ plt.tick_params(labelsize = 14)
 plt.legend(loc='upper left')
 plt.savefig(filename_csv[:-4] + '.png')
 plt.show()
+
 

@@ -9,7 +9,7 @@ by TU Graz / Graz University of Technology
 * diode_i_t.py - I(t) at given U until break.
 * diode_i_t_pulsed - I(t)  at given V with pulsed laser with delay and accumulation.  Several samples into one file.
 * fet_output.py - output curve Ids(Vds) at given Vgs.
- *fet_transfer - transfer curve Ids(Vgs) at given Vds.
+* fet_transfer - transfer curve Ids(Vgs) at given Vds.
 
 Data are saved into ./data/ folder
 

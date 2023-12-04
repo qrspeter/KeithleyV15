@@ -7,7 +7,12 @@ import winsound
 import numpy as np
 
 import time
-
+import os
+   
+direct = './data/'
+if not os.path.exists(direct):
+   os.makedirs(direct)
+   
 sample_name = 'rGO_centrif_heated'
 
 drain_bias = 2.0 # V
@@ -112,8 +117,8 @@ SPEED_FAST / SPEED_MED / SPEED_NORMAL / SPEED_HI_ACCURACY
 # Create unique filenames for saving the data
 time_for_name = datetime.datetime.now().strftime("%Y_%m_%d_%H%M%S")
 time_for_title = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-filename_av = './data/' + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_vds_' + str(drain_bias) +  '_cycles_' + str(periods) + '.csv'
-filename_raw = './data/' + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_raw' + '.csv'
+filename_av = direct + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_vds_' + str(drain_bias) +  '_cycles_' + str(periods) + '.csv'
+filename_raw = direct + 'PhotoCond_' + time_for_name + '_'  + sample_name + '_raw' + '.csv'
 
 """ ******* Do some measurements ******** """
 
